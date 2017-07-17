@@ -1,3 +1,6 @@
+/**
+ * mimetype to extension
+ */
 <?php
 array (
   'application/andrew-inset' => 'ez',
