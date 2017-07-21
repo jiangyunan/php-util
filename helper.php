@@ -108,9 +108,9 @@ if (!function_exists('encrypt256')) {
             return false;
         }
 
-        return substr($iv, 0, 8)
+        return base64_encode(substr($iv, 0, 8)
             . $value
-            . substr($iv, 8, 8);
+            . substr($iv, 8, 8));
     }
 }
 
@@ -123,6 +123,7 @@ if (!function_exists('decrypt256')) {
      */
     function decrypt256($value, $password)
     {
+        $value = base64_decode($value);
         $key = substr(sha1($password), 0, 16);
         $iv = substr($value, 0, 8) . substr($value, -8, 8);
         $value = substr($value, 8, -8);
@@ -144,7 +145,7 @@ if (!function_exists('http')) {
      * @param $postfields array 请求参数
      * @return mixed
      */
-    function http($url, $method, $postfields = NULL)
+    function http($url, $method, $postfields = NULL, $format='json')
     {
         $ci = curl_init();
         curl_setopt($ci, CURLOPT_URL, $url);
@@ -161,7 +162,7 @@ if (!function_exists('http')) {
                 }
                 break;
             case 'POST':
-                curl_setopt($ci, CURLOPT_SAFE_UPLOAD, false);
+                curl_setopt($ci, CURLOPT_SAFE_UPLOAD, true);
                 curl_setopt($ci, CURLOPT_POST, TRUE);
                 if (!empty($postfields)) {
                     curl_setopt($ci, CURLOPT_POSTFIELDS, $postfields);
@@ -185,7 +186,9 @@ if (!function_exists('http')) {
         }
         curl_close($ci);
 
-        $response = json_decode($response, true);
+	if ($format == 'json') {
+	    $response = json_decode($response, true);
+	}
         return $response;
     }
 }
