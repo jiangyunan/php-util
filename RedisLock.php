@@ -6,9 +6,9 @@
  * Time: 15:29
  */
 
-namespace DevManage\Util;
-
-
+/**
+ * Redis分布式锁
+ */
 class RedisLock
 {
 
@@ -24,9 +24,14 @@ class RedisLock
 
     protected $lockTime;
 
+    /**
+     * @params Redis $redis
+     * @params string $key 键名
+     * @params int $lockTime 锁定时间(毫秒)
+     */
     public function __construct(\Redis $redis, $key, $lockTime = 5000)
     {
-        $this->key = 'lock_' . $key;
+        $this->key = 'lock:' . $key;
         $this->redis = $redis;
         $this->lockTime = $lockTime;
     }
@@ -57,7 +62,7 @@ class RedisLock
                 //如果oldTimeLong小于当前时间了，说明之前持有锁的线程执行时间大于5秒了，就强制忽略该线程所持有的锁，重新设置自己的锁
                 if ($oldTime < $time) {
                     //调用getset方法获取之前的时间戳,注意这里会出现多个线程竞争，但肯定只会有一个线程会拿到第一次获取到锁时设置的expireTime
-                    $oldTime2 = $this->redis->getSet($this->key, microtime(true) + 5000);
+                    $oldTime2 = $this->redis->getSet($this->key, microtime(true) + $this->lockTime);
 
                     //如果刚获取的时间戳和之前获取的时间戳一样的话,说明没有其他线程在占用这个锁,则此线程可以获取这个锁.
                     if ($oldTime2 && $oldTime2 == $oldTime) {
