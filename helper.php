@@ -195,6 +195,7 @@ if (!function_exists('http')) {
 
 /**
  * 按拼音排序
+ * 转换成GBK是因为GBK是按拼音排序的
  */
 if (!function_exists('sortByPinyin')) {
     function sortByPinyin(&$arr) {
