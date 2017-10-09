@@ -192,3 +192,16 @@ if (!function_exists('http')) {
         return $response;
     }
 }
+
+/**
+ * 按拼音排序
+ */
+if (!function_exists('sortByPinyin')) {
+    function sortByPinyin(&$arr) {
+        uasort($arr, function($a, $b){
+            $a = iconv('UTF-8', 'GBK//IGNORE', $a);
+            $b = iconv('UTF-8', 'GBK//IGNORE', $b);
+            return $a > $b ? 1 : -1;
+        });
+    }
+}
