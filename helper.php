@@ -225,3 +225,21 @@ if (!function_exists('filterEmoji')) {
         return $str;
     }
 }
+
+//短网址
+if (!function_exists('dwz')) {
+    function dwz($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'http://dwz.cn/admin/create');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, '{"url":"' . $url . '"}');
+        $rst = curl_exec($ch);
+        curl_close($ch);
+
+        $rst = json_decode($rst, true);
+
+        return $rst['ShortUrl'];
+    }
+}
