@@ -399,7 +399,7 @@ class TrieTree {
     /**
      * 模糊查找
      * @param $search 要查找的文本
-     * @param $len 两字之间允许的距离, 比如为3, "安123徽" 匹配, "安1234徽" 不匹配
+     * @param $len 两字之间允许的非汉字距离, 比如为3, "安123徽" 匹配, "安1234徽" 不匹配, "安一微"不匹配
      */
     public function fuzzySearch($search, $len = 5)
     {
@@ -449,8 +449,13 @@ class TrieTree {
                     if ($wordLen > 0) {
                         $wordLen ++;
                     }
-                    //还原tree
-                    //$tree = &$this->nodeTree;
+                    // 如果字符为汉字, 还原检索起点
+                    if (preg_match("/\p{Han}/u", $this->hexToChar($searchKeys[$i]))) {
+                        //还原检索起点
+                        $i = $currentIndex;
+                        //还原tree
+                        $tree = &$this->nodeTree;
+                    }
                     //字码位移
                     $currentIndex++;
                     continue;
@@ -494,13 +499,35 @@ class TrieTree {
         }
         return $chars;
     }
+
+    public function hexToChar($hex)
+    {
+        $str = '';
+        $len = strlen($hex);
+        for ($i = 0; $i < $len - 1; $i += 2) {
+            $str .= chr(hexdec($hex[$i]. $hex[$i+1]));
+        }
+
+        return $str;
+    }
 }
+/*
+$tree = new TrieTree();
 
-//$tree = new TrieTree();
+$tree->loadFile("账号敏感词.txt");
+// 序列化存储
+$r = $tree->serialize("TrieTree_wfc");
 
-//$tree->loadFile("word.txt");
-//$tree = TrieTree::unserialize('store');
+// 从序列化文件载入
+//$tree = TrieTree::unserialize('TrieTree_wfc');
 // var_dump($res);
 
-//$r = $tree->fuzzySearch('安 asd 合 徽 肥北京', 7);
-//var_dump($r);
+$r = $tree->fuzzySearch('习12a近34#！@平', 7);
+var_dump($r);
+
+$r = $tree->convertStrToH('习12近34#！@平');
+var_dump($r);
+foreach ($r as $v) {
+    var_dump($tree->hexToChar($v));
+}
+*/
